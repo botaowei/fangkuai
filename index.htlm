@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tetris Live Show</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body { 
+            background: url('http://googleusercontent.com/generated_image_content/0.png') no-repeat center center fixed; 
+            background-size: cover;
+            color: #fff; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden; 
+        }
+        /* 增加磨砂玻璃效果，让游戏区域更清晰 */
+        #game-wrapper {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        canvas { 
+            display: block; 
+            background-color: rgba(0, 0, 0, 0.8); 
+            border: 2px solid #555;
+        }
+        .controls { 
+            margin-top: 20px; 
+            display: grid; 
+            grid-template-columns: repeat(3, 70px); 
+            gap: 12px; 
+        }
+        button { 
+            width: 70px; 
+            height: 60px; 
+            background: rgba(255, 255, 255, 0.2); 
+            color: white; 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            border-radius: 12px; 
+            font-size: 24px; 
+            touch-action: manipulation; 
+        }
+        button:active { background: rgba(255, 255, 255, 0.4); }
+        #score { font-size: 28px; margin-bottom: 10px; font-weight: bold; text-shadow: 2px 2px 4px #000; }
+    </style>
+</head>
+<body>
+    <div id="score">0</div>
+    <div id="game-wrapper">
+        <canvas id="tetris" width="240" height="400"></canvas>
+    </div>
+    <div class="controls">
+        <button onclick="playerRotate(-1)">⟲</button>
+        <button onclick="playerMove(0, -1)">↑</button>
+        <button onclick="playerRotate(1)">⟳</button>
+        <button onclick="playerMove(-1, 0)">←</button>
+        <button onclick="playerDrop()">↓</button>
+        <button onclick="playerMove(1, 0)">→</button>
+    </div>
+
+<script>
+const canvas = document.getElementById('tetris');
+const context = canvas.getContext('2d');
+const scoreElement = document.getElementById('score');
+context.scale(20, 20);
+
+function createPiece(type) {
+    if (type === 'I') return [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]];
+    if (type === 'L') return [[0, 2, 0], [0, 2, 0], [0, 2, 2]];
+    if (type === 'J') return [[0, 3, 0], [0, 3, 0], [3, 3, 0]];
+    if (type === 'O') return [[4, 4], [4, 4]];
+    if (type === 'Z') return [[5, 5, 0], [0, 5, 5], [0, 0, 0]];
+    if (type === 'S') return [[0, 6, 6], [6, 6, 0], [0, 0, 0]];
+    if (type === 'T') return [[0, 7, 0], [7, 7, 7], [0, 0, 0]];
+}
+
+function drawMatrix(matrix, offset) {
+    matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                context.fillStyle = colors[value];
+                context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                context.lineWidth = 0.05;
+                context.strokeStyle = 'white';
+                context.strokeRect(x + offset.x, y + offset.y, 1, 1);
+            }
+        });
+    });
+}
+
+function draw() {
+    context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    context.fillRect(0,
